@@ -1,7 +1,7 @@
 class PhotosController < ApplicationController
   def index
     @photos = Photo.all
-    render({ :template => "photos/all_photos.html.erb"})
+    render({ :template => "photo_templates/all_photos.html.erb"})
   end
 
   def create
@@ -19,7 +19,7 @@ class PhotosController < ApplicationController
   def show
     p_id = params.fetch("the_photo_id")
     @photo = Photo.where({:id => p_id }).first
-    render({:template => "photos/details.html.erb"})
+    render({:template => "photo_templates/details.html.erb"})
   end
 
   def destroy

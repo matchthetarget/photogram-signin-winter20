@@ -65,7 +65,7 @@ describe "/photos/[ID] - Update photo form" do
     visit "/photos/#{photo.id}"
 
 
-    # expect(page).to have_text("Update photo")
+    # expect(page).to_not have_text("Update photo")
     expect(page).not_to have_tag("button", :text => /Update photo/i),
       "Expected page to not have a button with the text 'Update photo', but found one."
   end
