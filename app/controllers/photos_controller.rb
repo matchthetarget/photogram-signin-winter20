@@ -5,9 +5,9 @@ class PhotosController < ApplicationController
   end
 
   def create
-    user_id = params.fetch("input_owner_id")
-    image = params.fetch("input_image")
-    caption = params.fetch("input_caption")
+    user_id = params.fetch("query_owner_id")
+    image = params.fetch("query_image")
+    caption = params.fetch("query_caption")
 
     the_photo = Photo.new
     the_photo.owner_id = user_id
@@ -27,8 +27,8 @@ class PhotosController < ApplicationController
   def update
     id = params.fetch("the_photo_id")
     the_photo = Photo.where({ :id => id }).at(0)
-    the_photo.caption = params.fetch("input_caption")
-    the_photo.image = params.fetch("input_image")
+    the_photo.caption = params.fetch("query_caption")
+    the_photo.image = params.fetch("query_image")
     the_photo.save
     
     redirect_to("/photos/#{the_photo.id}")
