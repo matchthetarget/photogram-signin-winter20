@@ -1,5 +1,60 @@
 require "rails_helper"
 
+describe "/users/[USERNAME] - Update user form" do
+  it "does not display Update user form when logged in user is on another user's page", points: 2 do
+    first_user = User.new
+    first_user.password = "password"
+    first_user.username = "alice"
+    first_user.save
+
+    bob = User.new
+    bob.password = "password"
+    bob.username = "bob"
+    bob.save
+
+    visit "/user_sign_in"
+    
+    within(:css, "form") do
+      fill_in "Username", with: bob.username
+      fill_in "Password", with: bob.password
+      find("button", :text => /Sign in/i ).click
+    end
+    
+    visit "/users/#{first_user.username}"
+
+    expect(page).not_to have_tag("form"),
+      "Expected page to not have a form to edit the user but found one anyway."
+  end
+end
+
+describe "/users/[USERNAME] - Update user form" do
+  it "does display Update user form when logged in user is on their own page", points: 2 do
+    first_user = User.new
+    first_user.password = "password"
+    first_user.username = "alice"
+    first_user.save
+
+    bob = User.new
+    bob.password = "password"
+    bob.username = "bob"
+    bob.save
+
+    visit "/user_sign_in"
+    
+    within(:css, "form") do
+      fill_in "Username", with: bob.username
+      fill_in "Password", with: bob.password
+      find("button", :text => /Sign in/i ).click
+    end
+    
+    visit "/users/#{bob.username}"
+
+    expect(page).to have_tag("form"),
+      "Expected page to have a form to edit the user but didn't find one."
+  end
+end
+
+
 describe "/photos - Create photo form" do
   it "automatically populates owner_id of new photo with id of the signed in user", points: 2 do
     first_user = User.new
