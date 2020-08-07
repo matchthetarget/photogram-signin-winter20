@@ -1,6 +1,6 @@
 class PhotosController < ApplicationController
   def index
-    @photos = Photo.all
+    @list_of_all_photos = Photo.all
     render({ :template => "photo_templates/all_photos.html.erb"})
   end
 
@@ -8,35 +8,37 @@ class PhotosController < ApplicationController
     user_id = params.fetch("input_owner_id")
     image = params.fetch("input_image")
     caption = params.fetch("input_caption")
-    photo = Photo.new
-    photo.owner_id = user_id
-    photo.image = image
-    photo.caption = caption
-    photo.save
-    redirect_to("/photos/#{photo.id}")
+
+    the_photo = Photo.new
+    the_photo.owner_id = user_id
+    the_photo.image = image
+    the_photo.caption = caption
+    the_photo.save
+
+    redirect_to("/photos/#{the_photo.id}")
   end
 
   def show
     p_id = params.fetch("the_photo_id")
-    @photo = Photo.where({:id => p_id }).first
+    @the_photo = Photo.where({:id => p_id }).first
     render({:template => "photo_templates/details.html.erb"})
   end
-
-  def destroy
-    id = params.fetch("the_photo_id")
-    photo = Photo.where({ :id => id }).at(0)
-    photo.destroy
-
-    redirect_to("/photos")
-  end
-
+  
   def update
     id = params.fetch("the_photo_id")
-    photo = Photo.where({ :id => id }).at(0)
-    photo.caption = params.fetch("input_caption")
-    photo.image = params.fetch("input_image")
-    photo.save
+    the_photo = Photo.where({ :id => id }).at(0)
+    the_photo.caption = params.fetch("input_caption")
+    the_photo.image = params.fetch("input_image")
+    the_photo.save
+    
+    redirect_to("/photos/#{the_photo.id}")
+  end
+  
+  def destroy
+    id = params.fetch("the_photo_id")
+    the_photo = Photo.where({ :id => id }).at(0)
+    the_photo.destroy
 
-    redirect_to("/photos/#{photo.id}")
+    redirect_to("/photos")
   end
 end
