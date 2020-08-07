@@ -21,18 +21,19 @@
     2 months ago
   </dd>
 
-  <dt>Edit photo</dt>
-  <dd>
-    <form action="/update_photo/<%= @the_photo.id %>">
-      <label for="browser_image">Image</label>
-      <input id="browser_image" type="text" name="query_image" placeholder="Enter a URL for the image..." value="<%= @the_photo.image %>">
+  <% if @current_user == @the_photo.poster %>
+    <dt>Edit photo</dt>
+    <dd>
+      <form action="/update_photo/<%= @the_photo.id %>" method="post">
+        <label for="browser_image">Image</label>
+        <input id="browser_image" type="text" name="query_image" placeholder="Enter a URL for the image..." value="<%= @the_photo.image %>">
 
-      <label for="browser_caption">Caption</label>
-      <textarea id="browser_caption" name="query_caption" placeholder="Enter a caption for the photo..."><%= @the_photo.caption %></textarea>
+        <label for="browser_caption">Caption</label>
+        <textarea id="browser_caption" name="query_caption" placeholder="Enter a caption for the photo..."><%= @the_photo.caption %></textarea>
 
-      <button>Update photo</button>
-    </form>
-  </dd>
+        <button>Update photo</button>
+      </form>
+    </dd>
 
   <dt>Delete photo</dt>
   <dd>
@@ -40,6 +41,25 @@
       Delete this photo
     </a>
   </dd>
+  <% end %>
+  <% if @current_user.present? %>
+    <% the_current_user_like =  Like.where({ :fan_id => @current_user.id, :photo_id => @the_photo.id }).at(0) %>
+    <% if the_current_user_like.present? %>
+      <dt>Remove a fan</dt>
+      <dd>
+        <a href="/delete_like/<%= the_current_user_like.id %>">Delete like</a>
+      </dd>
+   <% else%>
+      <dt>Add a fan</dt>
+      <dd>
+
+        <form action="/insert_like" method="post">
+          <input type="hidden" value="<%= @the_photo.id %>" name="query_photo_id">
+          <button>Like</button>
+        </form>
+      </dd>
+  <% end %>
+<% end %>
 </dl>
 
 <h2>Comments</h2>
@@ -71,15 +91,21 @@
 
 <h3>Add a new comment</h3>
 
-<form action="/insert_comment_record">
-  <label for="browser_photo_id">Photo ID</label>
-  <input id="browser_photo_id" type="text" value="<%= @the_photo.id %>" name="query_photo_id">
+<% if @current_user.present? %>
+  <form action="/insert_comment" method="post">
+    <label for="browser_photo_id">Photo ID</label>
+    <input id="browser_photo_id" type="text" value="<%= @the_photo.id %>" name="query_photo_id">
 
-  <label for="browser_author_id">Author ID</label>
-  <input id="browser_author_id" type="text" name="query_author_id">
+    <%# <label for="browser_author_id">Author ID</label> %>
+    <input id="browser_author_id" type="hidden" name="query_author_id" value="<%= @current_user.id %>">
 
-  <label for="browser_comment">Comment</label>
-  <textarea id="browser_comment" name="query_body" placeholder="Enter a comment..."></textarea>
+    <label for="browser_comment">Comment</label>
+    <textarea id="browser_comment" name="query_body" placeholder="Enter a comment..."></textarea>
 
-  <button>Add comment</button>
-</form>
+    <button>Add comment</button>
+  </form>
+<% else %>
+<p>
+Login to comment
+</p>
+<% end %>

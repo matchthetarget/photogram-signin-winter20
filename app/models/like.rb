@@ -12,8 +12,7 @@
 class Like < ApplicationRecord
   validates(:fan, { :presence => true })
   validates(:photo, { 
-    :presence => true,
-    :uniqueness => { :scope => [:fan_id] }
+    :presence => true
   })
 
   def fan

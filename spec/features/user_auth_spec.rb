@@ -169,3 +169,110 @@ describe "/photos/[ID] — Add comment form" do
       "Expected to create a new Comment record by visiting the photo details page, entering text in the 'Comment' field and clicking 'Add comment' but comment did not save."
   end
 end
+
+describe "/photos/[ID] - Like Form" do
+  it "automatically populates photo_id and fan_id with current photo and signed in user", points: 1 do
+    first_user = User.new
+    first_user.password = "password"
+    first_user.username = "alice"
+    first_user.save
+
+    photo = Photo.new
+    photo.image = "https://some.test/image-#{Time.now.to_i}.jpg"
+    photo.caption = "Some test caption #{Time.now.to_i}"
+    photo.owner_id = first_user.id
+    photo.likes_count = 0
+    photo.save
+
+    visit "/user_sign_in"
+    
+    within(:css, "form") do
+      fill_in "Username", with: first_user.username
+      fill_in "Password", with: first_user.password
+      find("button", :text => /Sign in/i ).click
+    end
+    
+    old_likes_count = Like.where({ :photo_id => photo.id }).count
+
+    visit "/photos/#{photo.id}"
+    
+    find("button", :text => /Like/i ).click
+
+    expect(photo.likes.count).to be >= (old_likes_count + 1),
+      "Expected clicking the 'Like' button to add a record to the Likes table, but it didn't."
+  end
+end
+
+describe "/photos/[ID] - Delete Like link" do
+  it "displays 'Delete Like' link if current user has already liked the Photo", points: 1 do
+    first_user = User.new
+    first_user.password = "password"
+    first_user.username = "alice"
+    first_user.save
+
+    photo = Photo.new
+    photo.image = "https://some.test/image-#{Time.now.to_i}.jpg"
+    photo.caption = "Some test caption #{Time.now.to_i}"
+    photo.owner_id = first_user.id
+    photo.likes_count = 0
+    photo.save
+
+    like = Like.new
+    like.photo_id = photo.id
+    like.fan_id = first_user.id
+    like.save
+
+    visit "/user_sign_in"
+    
+    within(:css, "form") do
+      fill_in "Username", with: first_user.username
+      fill_in "Password", with: first_user.password
+      find("button", :text => /Sign in/i ).click
+    end
+    
+    visit "/photos/#{photo.id}"
+
+    expect(page).to have_tag("a", :text => /Delete Like/i),
+      "Expected page to have a link with the text 'Delete Like', but didn't find one."
+  end
+end
+
+describe "/photos/[ID] - Delete Like link" do
+  it "removes the Like record between the current user and current photo when clicked", points: 1 do
+    first_user = User.new
+    first_user.password = "password"
+    first_user.username = "alice"
+    first_user.save
+
+    photo = Photo.new
+    photo.image = "https://some.test/image-#{Time.now.to_i}.jpg"
+    photo.caption = "Some test caption #{Time.now.to_i}"
+    photo.owner_id = first_user.id
+    photo.likes_count = 0
+    photo.save
+
+    like = Like.new
+    like.photo_id = photo.id
+    like.fan_id = first_user.id
+    like.save
+
+    visit "/user_sign_in"
+    
+    within(:css, "form") do
+      fill_in "Username", with: first_user.username
+      fill_in "Password", with: first_user.password
+      find("button", :text => /Sign in/i ).click
+    end
+    
+    old_likes_count = Like.where({ :photo_id => photo.id }).count
+    
+    visit "/photos/#{photo.id}"
+    
+    find("a", :text => /Delete Like/i ).click
+    
+    new_likes_count = Like.where({ :photo_id => photo.id }).count
+
+    expect(new_likes_count).to be >= (old_likes_count - 1),
+      "Expected clicking the 'Delete Like' link to remove a record to the Likes table, but it didn't."
+  end
+end
